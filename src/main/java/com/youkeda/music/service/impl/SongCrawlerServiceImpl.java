@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.youkeda.music.util.WordCloudUtil;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -57,6 +59,7 @@ public class SongCrawlerServiceImpl implements SongCrawlerService {
     assembleSongDetail(artistId);
     assembleSongComment(artistId);
     assembleSongUrl(artistId);
+    generateWordCloud(artistId);
   }
 
   @Override
@@ -317,6 +320,26 @@ public class SongCrawlerServiceImpl implements SongCrawlerService {
     String sIdsParam = String.join(",", songIds);
 
     return sIdsParam;
+  }
+  private void generateWordCloud(String artistId){
+
+    Artist artist = getArtist(artistId);
+    List<Song> songs = artist.getSongList();
+
+    List<String> contents  = new ArrayList<>();
+    for (Song song : songs) {
+      List<Comment> comments = song.getComments();
+      List<Comment> hotComments = song.getHotComments();
+
+      for (Comment comment : comments) {
+        contents.add(comment.getContent());
+      }
+      for (Comment hotComment : hotComments) {
+        contents.add(hotComment.getContent());
+      }
+    }
+    WordCloudUtil.generate(artistId,contents);
+
   }
 
 }
